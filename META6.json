@@ -1,0 +1,20 @@
+{
+  "name": "ARABASIC",
+  "description": "Write me!",
+  "version": "0.1",
+  "perl": "6.*",
+  "authors": [
+    "Write me!"
+  ],
+  "auth": "Write me!",
+  "depends": [],
+  "build-depends": [],
+  "test-depends": [],
+  "provides": {
+    "ABasicGrammar": "lib/ABasicGrammar.pm6",
+    "ARABASIC": "lib/ARABASIC.pm6"
+  },
+  "resources": [],
+  "license": "Write me!",
+  "source-url": "Write me!"
+}
