@@ -1,10 +1,12 @@
 use v6.d;
 
-#TODO it's capturing newlines; let's get rid of that
+use Grammar::Tracer;
+#use Grammar::Debugger;
+
 grammar ARABASIC::BasicGrammar {
     token TOP        { <statement>* }
 #    rule statement   { <comment><newline> | <assignment><newline> } # this, then requires a new line after even the last statement!
-    rule statement   { [<comment> | <assignment>]<newline> }
+    rule statement   { [<comment> | <assignment>]<.newline> } # let's not capture newlines
     #    %% \n doesn't work at all well; matches only a single line
 
     rule assignment  { <identifier> '=' <term> } # whitespace around the = can be anything
