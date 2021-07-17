@@ -5,22 +5,22 @@ use Grammar::Tracer;
 
 grammar ARABASIC::BasicGrammar {
     token TOP        { <statement>* }
-#    rule statement   { <comment><newline> | <assignment><newline> } # this, then requires a new line after even the last statement!
-    rule statement   { [<comment> | <assignment>]<.newline> } # let's not capture newlines
+
     #    %% \n doesn't work at all well; matches only a single line
+    rule statement   { [<comment> | <assignment>]<.newline> } # let's not capture newlines
+    token comment    { 'تع:'\V* }
 
     rule assignment  { <identifier> '=' <term> } # whitespace around the = can be anything
     token term       { <identifier> | <number> } # interior whitespace next to { and } is significant
     token number     { '-'?\d+ }
     token identifier { <:alpha> \w* }
-    token comment    { 'تع:'\V* }
 
-    # redefine the default whitespace token in Grammar, - Moritz Lenz
-    # without this, it's { <!ww> \s* } which would clobber our <newline>
-    token ws         { <!ww> \h* }  # includes any horizontal whitespace; must be a token and not rule: infinite recursion
-    #    token newline    { <[ \c[LINE SEPARATOR] \n ]> } # required because of Unicode
+    # redefine the default whitespace token in Grammar, per Moritz Lenz
+    #   without this, the implicit definition of <ws> is { <!ww> \s* } which would clobber <newline>
+    token ws         { <!ww> \h* }  # includes any horizontal whitespace; must be a token and not rule, else infinite recursion
     rule newline    { \v  #`(any type of vertical whitespace) }
-    #    BUT, since \n in Raku regexes conforms to https://unicode.org/reports/tr18/#Line_Boundaries
+    #    token newline    { <[ \c[LINE SEPARATOR] \n ]> } # required because of Unicode
+    # NOTE that \n in Raku regexes conforms to https://unicode.org/reports/tr18/#Line_Boundaries; does \v?
 }
 
 #`{
