@@ -1,12 +1,31 @@
 use v6.d;
+
 use lib '../lib';
 use ARABASIC::BasicGrammar;
 use ARABASIC::Interpreter;
 
-my $arabic = '../test.abas'.IO.slurp();
-my $parsedArabic = ARABASIC::BasicGrammar.parse($arabic);
+my $arabic = q:to/EOI/;
+ص = ٤٢
+تع:this is a comment
+ص٠=٢٢
+ت = -٥
+ن = ١٠٥
+  ل = ن
+EOI
 
+my $english = q:to/EOI/;
+x = 20
+b = -5
+n = 110
+d = x
+x = 72
+EOI
+
+#my $arabic = '../test.abas'.IO.slurp();
+my $interpreter = ARABASIC::Interpreter.new;
+my $parsedArabic = ARABASIC::BasicGrammar.parse($arabic, actions => $interpreter);
+
+dd $interpreter.variables;
 say $parsedArabic;
-#say $parsedArabic.raku;
 
 
