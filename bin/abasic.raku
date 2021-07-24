@@ -13,13 +13,6 @@ my $arabic = q:to/EOI/;
   ل = ن
 EOI
 
-my $english = q:to/EOI/;
-x = 20
-b = -5
-n = 110
-d = x
-x = 72
-EOI
 
 #my $arabic = '../test.abas'.IO.slurp();
 my $interpreter = ARABASIC::Interpreter.new;
