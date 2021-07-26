@@ -11,14 +11,19 @@ my $arabic = q:to/EOI/;
 ت = -٥
 ن = ١٠٥
   ل = ن
+ش = ٧ + ٣
+ش = ن + ٣
+
+
 EOI
 
 
 #my $arabic = '../test.abas'.IO.slurp();
 my $interpreter = ARABASIC::Interpreter.new;
-my $parsedArabic = ARABASIC::BasicGrammar.parse($arabic, actions => $interpreter);
+say ARABASIC::BasicGrammar.parse($arabic, actions => $interpreter); #
 
 dd $interpreter.variables;
-say $parsedArabic;
+#say $parsedArabic;
+#dd $parsedArabic;
 
 

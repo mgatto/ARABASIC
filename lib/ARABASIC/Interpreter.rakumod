@@ -5,29 +5,54 @@ class ARABASIC::Interpreter {
     has %.variables;
 
     method TOP($/) {
-#        make $/.values[0].made;
-#        my %variables;
     }
 
     method assignment($/) {
         #`(
             set $/<identifier>'s value in the symbol table.
             It will either be a <number> or another identifier whose <number> we
-                will retrieve from the symbol table.
+              will retrieve from the symbol table.
         )
-        %!variables{$<identifier>.Str} = $/<term>.Int || +%!variables{$/<term><variable><identifier>};
-        # say %!variables{~$/<term>.<variable>.<identifier>};
-        # can use Str(x)
-        # can use ~(x), too
+        %!variables{$<identifier>} = $<expression>.made;
+    }
+
+    method expression($/) {
+        # <operation> | <term> can be covered by
+        $/.make($<term> ?? $<term>.made !! $<addition>.made);
+        #`[        if $<term> {
+                    $/.make($<term>.made);
+                }
+                elsif $<operation> {
+                    make $<operation>; # ??
+                }
+        ]
+    }
+
+#    method operation:sym<addition> ($/) {
+    method addition ($/) {
+        make ($<term>[0].<number>.made || +%!variables{$/<term>[0].<variable>.<identifier>}) + ($<term>[1].<number>.made || +%!variables{$/<term>[1].<variable>.<identifier>});
+        # TODO this or clause seems like a hack
+    }
+
+    method term($/) {
+        if $<number> {
+            $/.make($<number>.made);
+        }
+        elsif $<variable> {
+            # get the value of the variable from the symbol table
+            make +%!variables{$/<variable>.<identifier>};
+        }
     }
 
     method variable($/) {
-        # check that $/<identifier> is defined
-        make %!variables{$/<identifier>} || die "";
+        $/.make($<identifier>);
     }
 
     method identifier($/) {
-        make ~$/;
+        make ~$/;  # can use Str(x), or ~(x)
+    }
+
+    method number($/) {
+        make Int($/);  # Int($<number>)
     }
 }
-
