@@ -8,7 +8,7 @@ grammar ARABASIC::BasicGrammar {
     # token t_word {<:Script<Arabic>>+}
     #    %% \n doesn't work at all well; matches only a single line
 
-    rule statement   { [<comment> | <assignment> | <ws>]<.newline> } # let's not capture newlines
+    rule statement   { [<comment> | <assignment> | <print> | <ws>]<.newline> } # let's not capture newlines
 # | <selection>
 #    | <operation>
 
@@ -18,7 +18,8 @@ grammar ARABASIC::BasicGrammar {
 #    rule comparison:sym<equals> { <term> '=' <term> }
 #    rule comparison:sym<lessthan> { <term> '<' <term> }
 #    rule comparison:sym<greaterthan> { <term> '>' <term> }
-    #    rule condition  {}
+#    rule comparison:sym<notequals> { <term> '<>' <term> }
+#    rule condition  {}
     rule assignment  { <identifier> '=' <expression> } # whitespace around the = can be anything
 
 #    rule value       { <expression> | <number> }  # Might be a nice abstraction
@@ -32,16 +33,17 @@ grammar ARABASIC::BasicGrammar {
 #    proto rule operation  {*};
 #    rule operation:sym<addition>  { <term>+ %% '+' }  #TODO this also consumes any lone terms because '+' is just an optional delimiter
 
+    rule print      { 'اطبع' <term> }
     token comment    { 'تع:'\V* }
     token number     { '-'?\d+ }
 
     #TODO must make it not whitespace (?)
-    token identifier { <:alpha>\w* } #must start with an alphabetical char, then 0 or more "word" chars
+    token identifier { <!before اطبع><:alpha>\w* } #must start with an alphabetical char, then 0 or more "word" chars
 
     # redefine the default whitespace token in Grammar, per Moritz Lenz
     #   without this, the implicit definition of <ws> is { <!ww> \s* } which would clobber <newline>
     token ws         { <!ww> \h* }  # includes any horizontal whitespace; must be a token and not rule, else infinite recursion
-    token newline    { \v  #`(any type of vertical whitespace) }
+    token newline    { \v  #`(any type of vertical whitespace) } # also could be \n [\h*\n]*
     #    token newline    { <[ \c[LINE SEPARATOR] \n ]> } # required because of Unicode
     # NOTE that \n in Raku regexes conforms to https://unicode.org/reports/tr18/#Line_Boundaries; does \v?
 }

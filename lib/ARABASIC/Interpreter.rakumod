@@ -34,6 +34,10 @@ class ARABASIC::Interpreter {
         # TODO this or clause seems like a hack
     }
 
+    method print($/) {
+        say $<term>.made;
+    }
+
     method term($/) {
         if $<number> {
             $/.make($<number>.made);
