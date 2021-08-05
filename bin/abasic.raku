@@ -31,7 +31,7 @@ say $parsedArabic;
 
 say '-------';
 
-#TODO accept an arg of ARABASIC::AST::Assignment
+# abstract out the execution of assignment, since it will be called also for the predicate of selection statements
 sub perform_assignment(ARABASIC::AST::Assignment :$ast!) {
     say "{$ast.identifier.name} = {$ast.value.value}" if $ast.value ~~ ARABASIC::AST::Number;
     say "{$ast.identifier.name} = {$ast.value.name}" if $ast.value ~~ ARABASIC::AST::Variable;
@@ -43,10 +43,14 @@ sub perform_assignment(ARABASIC::AST::Assignment :$ast!) {
 # loop through the statements
 for $interpreter.statements -> $st {
     given $st -> $_ {
+        dd $_;  # for demo purposes
+
         # perform "assignment"
         when $_ ~~ ARABASIC::AST::Assignment {
             perform_assignment(ast => $_);
         }
+
+        # perform selection
         when $_ ~~ ARABASIC::AST::Selection  {
             my $term0_val;
             if $_.test.first_term ~~ ARABASIC::AST::Variable {
@@ -55,6 +59,7 @@ for $interpreter.statements -> $st {
                 $term0_val = $_.test.first_term.value;
             }
 
+
             my $term1_val;
             if $_.test.second_term ~~ ARABASIC::AST::Variable {
                 $term1_val = $interpreter.variables{$_.test.second_term.name};
@@ -62,19 +67,17 @@ for $interpreter.statements -> $st {
                 $term1_val = $_.test.second_term.value;
             }
 
+
             my $test_expr = EVAL("{$term0_val} {$_.test.comparator} {$term1_val}");
             if $test_expr {
-                say "it's true!";
-                say $_.predicate;
                 #TODO if $_.predicate == assignment...
                 perform_assignment(ast => $_.predicate);
-            } else {
+            } #`[else {
                 say "it's false!";
-            }
-
-            dd $_;
+            }]
         }
-        default                              { say "Just some Node";}
+        
+        #default                              { say "Just some Node";}
     }
 }
 
