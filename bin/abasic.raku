@@ -27,9 +27,11 @@ my $interpreter = ARABASIC::Interpreter.new;
 my $parsedArabic = ARABASIC::BasicGrammar.parse($arabic, actions => $interpreter);
     #NOTE: subparse() doesn't require the whole passed string to match
 
-say $parsedArabic;
 
+say "The parse tree:";
+say $parsedArabic;
 say '-------';
+
 
 # abstract out the execution of assignment, since it will be called also for the predicate of selection statements
 sub perform_assignment(ARABASIC::AST::Assignment :$ast!) {
@@ -40,6 +42,7 @@ sub perform_assignment(ARABASIC::AST::Assignment :$ast!) {
     $interpreter.variables{$ast.identifier.name} = $interpreter.variables{$ast.value.name} if $ast.value ~~ ARABASIC::AST::Variable;
 }
 
+say "The AST";
 # loop through the statements
 for $interpreter.statements -> $st {
     given $st -> $_ {
@@ -76,14 +79,14 @@ for $interpreter.statements -> $st {
                 say "it's false!";
             }]
         }
-        
+
         #default                              { say "Just some Node";}
     }
 }
-
 say '-------';
 
-say "notice how the numbers are Latin now!";
-dd $interpreter.variables;
 
+say "The final state of the variables";
+#say "notice how the numbers are Latin now!";
+dd $interpreter.variables;
 say '-------';
