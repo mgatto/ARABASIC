@@ -1,7 +1,6 @@
 use ARABASIC::BasicGrammar;
 
 class ARABASIC::AST::Node {
-#    has Int $!line-number;  will be the position in the @.statements array + 1
     has Int $!starts-at;
 }
 
@@ -28,7 +27,6 @@ class ARABASIC::AST::Statement is ARABASIC::AST::Node {
 
 class ARABASIC::AST::Assignment is ARABASIC::AST::Node {
     has ARABASIC::AST::Variable $.identifier;
-#    has Str $.name;
     has ARABASIC::AST::Node $.value;  # Basically, type == Any
 }
 
@@ -40,10 +38,25 @@ class ARABASIC::AST::Condition is ARABASIC::AST::Node {
 
 class ARABASIC::AST::Selection is ARABASIC::AST::Node {
     has ARABASIC::AST::Condition $.test;
-    has ARABASIC::AST::Assignment $.predicate;
-
-    multi run-predicate() {}
+    has ARABASIC::AST::Node $.predicate;
 }
 
+class ARABASIC::AST::Label is ARABASIC::AST::Node {
+    has $.name;
+    has $.line_number is rw;
+}
 
+class ARABASIC::AST::GoTo is ARABASIC::AST::Node {
+    has $.target;
+    has $.line_number is rw;
+}
 
+#TODO this would best be ARABASIC::AST::Expression instead?
+class ARABASIC::AST::Addition is ARABASIC::AST::Node {
+    has $.operator;
+    has ARABASIC::AST::Node @.terms is rw;
+}
+
+class ARABASIC::AST::Print is ARABASIC::AST::Node {
+    has $.printable;
+}

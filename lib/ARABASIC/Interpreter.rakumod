@@ -1,14 +1,15 @@
 use v6.d;
-use MONKEY-SEE-NO-EVAL;
+use MONKEY-SEE-NO-EVAL;  # required for using the EVAL macro, which is seen as unsafe when used with unsecured inputs.
 
 use ARABASIC::AST;
 
 class ARABASIC::Interpreter {
-    has ARABASIC::AST::Node @.statements;  #TODO I need an ordered struct / has instead of an array...
-    has %.variables; #TODO transfer this to the AST module?
+    has ARABASIC::AST::Node @.statements;
+    has %.variables;
+    has %.loops is rw;
 
     method TOP($/) {
-        # make an array
+        # make an array of statements
         for $<statement> -> $statement {
 #            $program
             @!statements.push($statement.made);
@@ -26,16 +27,19 @@ class ARABASIC::Interpreter {
     }
 
     multi method statement($/ where $<print>) {
-
+        make ARABASIC::AST::Print.new(printable => $<print><term>.made);
     }
 
     multi method statement($/ where $<selection>) {
         $/.make($<selection>.made);
     }
 
-    multi method statement($/ where $<ws>) {
-
+    multi method statement($/ where $<label>) {
+        $/.make($<label>.made);
     }
+
+    # No-op
+    multi method statement($/ where $<ws>) {}
 
     method assignment($/) {
         #`(
@@ -43,31 +47,35 @@ class ARABASIC::Interpreter {
             It will either be a <number> or another identifier whose <number> we
               will retrieve from the symbol table.
         )
-
         $/.make(ARABASIC::AST::Assignment.new(
                 identifier => ARABASIC::AST::Variable.new(name => $<identifier>.made),
                 value => $<expression>.made,
             )
         );
-
-        # HOWEVER, expressions with identifiers in it will fail!
-        # OR, I can update the grammar so int expressions are evaluated as much as possible, but are then stuffed into
-        #     AST::Number and identifiers into AST::Variable
     }
 
-    # multi method expression($/ where $<identifier>) {}
+    # expressions can be a single constant, a single variable or an addition operation
     method expression($/) {
         $/.make($<term> ?? $<term>.made !! $<addition>.made);
     }
 
-#    method operation:sym<+> ($/) {
-    method addition ($/) {
-        make ARABASIC::AST::Number.new(value => Int([+] $<number>».made));
+    # method operation:sym<+> ($/) {}
+    multi method addition ($/ where $<number>) {
+        my $add_ast = ARABASIC::AST::Addition.new(
+                operator => '+',
+                terms => ARABASIC::AST::Number.new(value => Int([+] $<number>».made))
+                );
+
+        # now loop through any $<variable> and append them
+        for $<variable> {
+            $add_ast.terms.append(ARABASIC::AST::Variable.new(name => $_.made));
+        }
+        $/.make($add_ast);
     }
 
-    method print($/) {
-#        say $<term>.made;
-    }
+     method print($/) {
+         make ARABASIC::AST::Print.new(printable => $<term>.made);
+     }
 
     # Keep these operating here instead of in the AST, for now.
     multi method term($/ where $<number>) {
@@ -90,6 +98,24 @@ class ARABASIC::Interpreter {
         make Int($/);  # Int($<number>)
     }
 
+    method label($/) {
+        $/.make(ARABASIC::AST::Label.new(
+            name => $<linemarker>.made,
+            line_number => 0,
+        ));
+    }
+
+    method goto($/) {
+        $/.make(ARABASIC::AST::GoTo.new(
+            target => $<linemarker>.made,
+            line_number => 0,
+        ));
+    }
+
+    method linemarker($/) {
+        $/.make(~$/);
+    }
+
     method condition($/) {
         $/.make(ARABASIC::AST::Condition.new(
                 first_term => $<term>[0].made,
@@ -102,9 +128,16 @@ class ARABASIC::Interpreter {
     method selection($/) {
         $/.make(ARABASIC::AST::Selection.new(
                 test => $<condition>.made,
-                predicate => $<predicate>.<assignment>.made
+                predicate => $<predicate>.made
             )
         );
+    }
+
+    multi method predicate($/ where $<assignment>) {
+        $/.make($<assignment>.made);
+    }
+    multi method predicate($/ where $<goto>) {
+        $/.make($<goto>.made);
     }
 
 }
