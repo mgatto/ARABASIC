@@ -1,11 +1,12 @@
 use v6.d;
 #use Grammar::Tracer;
 
-grammar ARABASIC::BasicGrammar {
+grammar ARABASIC::TokenizingGrammar {
     rule TOP        { <statement>* }
-    # add this to disallow non-Arabic script characters {<:Script<Arabic>>+}
+    # add this to disallow non-Arabic script characters {<:Script<Arabic>>+} as so token t_word {<:Script<Hebrew>>+}
 
-    rule statement   { [<comment> | <assignment> | <print> | <label> | <selection> | <ws>]<.newline> } # let's not capture newlines
+    rule statement   { [<comment> | <assignment> | <print> | <label> | <selection> | <ws>]<.newline> }
+        # let's not capture newlines
     rule selection   { 'اذا' <condition> 'ثم' <predicate> }
     rule predicate   { <goto> | <assignment> }
     rule condition   { <term> <comparison> <term> }

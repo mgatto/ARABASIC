@@ -2,17 +2,19 @@ use v6.d;
 use MONKEY-SEE-NO-EVAL;
 use Data::Dump;
 
+# this script functions as an interpreter
+
 use lib '../lib';
-use ARABASIC::BasicGrammar;
-use ARABASIC::Interpreter;
+use ARABASIC::TokenizingGrammar;
+use ARABASIC::Parser;
 use ARABASIC::AST;
 
-my $interpreter = ARABASIC::Interpreter.new;
+my $interpreter = ARABASIC::Parser.new;
 
 sub MAIN(
         Str $file  #= a file containing Arabic BASIC source code
 ) {
-    my $parsedArabic = ARABASIC::BasicGrammar.parsefile($file, actions => $interpreter);
+    my $parsedArabic = ARABASIC::TokenizingGrammar.parsefile($file, actions => $interpreter);
     #NOTE: subparse() doesn't require the whole passed string to match
 
     say "The parse tree:\n";
@@ -90,7 +92,7 @@ sub MAIN(
 
     #say "notice how the numbers are Latin now!";
     say "Symbol table:\n", Dump($interpreter.variables);
-    say "Loop hash:\n", Dump($interpreter.loops);
+    say "Loop hash:\n", Dump($interpreter.loops, :gist);
     say '-------';
 }
 

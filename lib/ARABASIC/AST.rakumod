@@ -1,4 +1,4 @@
-use ARABASIC::BasicGrammar;
+use ARABASIC::TokenizingGrammar;
 
 class ARABASIC::AST::Node {
     has Int $!starts-at;

@@ -3,7 +3,7 @@ use MONKEY-SEE-NO-EVAL;  # required for using the EVAL macro, which is seen as u
 
 use ARABASIC::AST;
 
-class ARABASIC::Interpreter {
+class ARABASIC::Parser {
     has ARABASIC::AST::Node @.statements;
     has %.variables;
     has %.loops is rw;
