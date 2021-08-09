@@ -22,7 +22,7 @@ grammar ARABASIC::TokenizingGrammar {
     rule addition    { [<number>|<variable>]** 2..20 %% '+' }  # must specify that there be at least 2 terms.
     rule print       { 'اطبع' <term> }
     token linemarker { <!before [اطبع|اذا|ذهاب|بطاقة]>\w+ }
-    rule label      { 'بطاقة' <linemarker> } #
+    rule label      { 'بطاقة' <linemarker> }
     rule goto       { 'ذهاب' <linemarker> }
     token comment    { 'تع:'\V* }
     token number     { '-'?\d+ }
@@ -32,7 +32,6 @@ grammar ARABASIC::TokenizingGrammar {
     #   without this, the implicit definition of <ws> is { <!ww> \s* } which would clobber <newline>
     token ws         { <!ww> \h* }  # includes any horizontal whitespace; must be a token and not rule, else infinite recursion
     token newline    {\n [\h*\n]*} # <-- is better, but it throws off line numbers { \v  #`(any type of vertical whitespace) }
-        # also could be \n [\h*\n]*
         # token newline    { <[ \c[LINE SEPARATOR] \n ]> } # required because of Unicode?
         # NOTE that \n in Raku regexes conforms to https://unicode.org/reports/tr18/#Line_Boundaries; does \v?
 }
